@@ -49,3 +49,244 @@ WHERE review_id=13;
 UPDATE reviews
 SET hotel_id=1,hotel_review='Excellent'
 WHERE review_id=1;
+
+
+SELECT * FROM exploreplaces.restaurants;
+SELECT name AS restaurant_name FROM restaurants
+WHERE delivery_available=0;
+
+SELECT * FROM review_reactions;
+SELECT distinct reaction_type FROM review_reactions;
+
+SELECT * FROM exploreplaces.cities;
+SELECT r.name AS restaurant_name,
+       c.city_name,
+       c.country
+FROM restaurants r
+INNER JOIN cities c ON r.city_id = c.city_id
+WHERE c.country IN ('USA', 'UK');
+
+SELECT * FROM exploreplaces.users;
+SELECT * FROM users
+WHERE age between 25 AND 35;
+
+SELECT * FROM reviews
+WHERE comment LIKE 'Great%';
+
+SELECT comment,restaurant_id FROM reviews
+WHERE comment LIKE '%cuisine%';
+
+UPDATE restaurants
+SET delivery_available= 0
+WHERE restaurant_id = 9;
+
+SELECT * FROM reviews
+WHERE rating>4 AND review_date LIKE '2025%' OR '2024-12%' AND user_id IN (1,11);
+INSERT INTO users
+values(13,'Tatevik Aghababyan','tat.aghababyan@example.com',30,'Armenia','2025-08-12');
+
+DELETE FROM review_reactions
+WHERE user_id=10;
+
+1. List users full names who gave a 5-star review by using subqueries.
+SELECT full_name
+FROM users
+WHERE user_id IN(SELECT user_id FROM reviews WHERE rating=5);
+ 
+ 2. -- List users full names and comments, rating who gave a 5-star review.
+SELECT full_name,comment,rating
+FROM users AS u
+INNER JOIN reviews AS r
+ON u.user_id=r.user_id
+WHERE rating=5;
+
+3.-- List all users with their review, even if they haven’t written any reviews.
+SELECT full_name,rating,comment,review_date
+FROM users AS u
+LEFT JOIN reviews AS r
+ON r.user_id=u.user_id;
+
+4. -- Get all restaurants with their cuisine type and city names.
+SELECT r.name AS restaurant_name,
+    cu.cuisine_name,
+    c.city_name
+FROM restaurants r
+JOIN cuisine cu 
+ON r.cuisine_id = cu.cuisine_id
+JOIN cities c 
+ON r.city_id = c.city_id;
+
+
+5. Show the list of restaurants names that have received reviews, along with the comments, names of users who wrote those reviews and rating score.
+SELECT r.name AS restaurant_name,
+     u.full_name AS reviewer_name,
+      rv.comment,
+      rv.rating
+FROM restaurants AS r
+JOIN reviews AS rv
+ON r.restaurant_id=rv.restaurant_id
+JOIN users AS u
+ON rv.user_id=u.user_id;
+
+
+6.List hotels and restaurants located in the same city. Show hotel, restaurant names: also would be nice to return city name as well.
+SELECT h.name AS hotel_name,
+	   r.name AS restaurant_name,
+       c.city_name
+FROM hotels AS h
+JOIN cities AS c
+ON h.city_id=c.city_id
+JOIN restaurants AS r
+ON c.city_id=r.city_id;
+
+
+7.Find users who reacted to reviews but haven’t written any reviews themselves-> use joins and where
+SELECT u.user_id,u.full_name
+FROM users u
+JOIN review_reactions rr 
+ON u.user_id = rr.user_id             
+LEFT JOIN reviews r 
+ON u.user_id = r.user_id            
+WHERE r.user_id IS NULL;                  
+
+
+8. List names of users who left reviews for both resturants and hotels.
+SELECT u.full_name
+FROM users AS u
+WHERE u.user_id IN (SELECT user_id FROM reviews WHERE restaurant_id IS NOT NULL)
+    AND u.user_id IN (SELECT user_id FROM reviews WHERE hotel_id IS NOT NULL);
+
+ SELECT full_name
+ FROM users AS u
+ INNER JOIN reviews AS r
+ ON u.user_id=r.user_id
+WHERE review_id AND hotel_id IS NOT NULL; 
+
+9.-- Find users who joined before a "Carlos Martinez" user. Return both user names and their join dates.
+SELECT full_name,join_date
+FROM users
+WHERE join_date<'2022-12-15';
+
+
+10.-- Find all restaurants serving “Armenian” cuisine in “Yerevan”. Return resturant names, cuisine and city name.
+SELECT r.name AS restaurant_name,
+	cu.cuisine_name,
+    c.city_name
+FROM restaurants AS r
+JOIN cuisine AS cu
+ON r.cuisine_id=cu.cuisine_id
+JOIN cities AS c
+ON c.city_id=r.city_id
+WHERE city_name='Yerevan'
+AND cu.cuisine_name = 'Armenian';
+
+
+11.-- Create a single list showing both restaurants and hotels located in the same city. Return place_name, type, and city_name.
+SELECT name AS place_name,
+    'Restaurant' AS type,
+    c.city_name
+FROM restaurants AS r
+JOIN cities AS c 
+ON r.city_id = c.city_id
+UNION ALL
+SELECT name AS place_name,
+    'Hotel' AS type,
+    c.city_name
+FROM hotels AS h
+JOIN cities AS c 
+ON h.city_id = c.city_id;
+
+--- Show how many reviews each restaurant has received returning restaurant name and review count. Order the result by review count descending.
+SELECT r.name AS restaurant_name, COUNT(rv.review_id) AS review_count
+FROM restaurants AS r
+LEFT JOIN reviews AS rv
+ON r.restaurant_id=rv.restaurant_id
+GROUP BY restaurant_name
+ORDER BY review_count DESC;
+
+-- List all users who joined this year, return user name, email, and join date, ordered by join date ascending.
+SELECT full_name AS user_name,email,join_date
+FROM users AS u
+WHERE EXTRACT(YEAR FROM join_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+order by join_date ASC;
+
+-- Show users who wrote more than 1 reviews, return user full name and review count, ordered by
+SELECT full_name,COUNT(review_id) AS review_count
+FROM users AS u
+JOIN reviews AS rv
+ON u.user_id=rv.user_id
+GROUP BY full_name
+HAVING COUNT(review_id)>1
+ORDER BY review_count DESC;
+
+-- Show the restaurant(s) with the longest name, return restaurant name and name length, including all restaurants if there are ties,
+
+SELECT name AS restaurant_name,
+       length(name) AS name_length
+FROM restaurants
+WHERE length(name)=(SELECT max(length(name))
+FROM restaurants);
+
+-- Show hotel name, star rating, and hotel category: 'Luxury' (5 stars), 'Premium' (4 stars), 'Standard' (1–3 stars), ordered by star rating descending.
+SELECT * FROM exploreplaces.hotels;
+ALTER TABLE hotels
+ADD COLUMN hotel_category VARCHAR(50) AFTER stars;
+UPDATE hotels
+SET hotel_category = 
+    CASE
+        WHEN stars = 5 THEN 'Luxury'
+        WHEN stars = 4 THEN 'Premium'
+        WHEN stars BETWEEN 1 AND 3 THEN 'Standard'
+        ELSE 'Standard'
+    END
+WHERE hotel_id > 0;
+
+
+-- Calculate how many reviews were posted each month, return the year, month name, and review count, ordered by review count descending.
+SELECT COUNT(review_id) AS review_count,
+	   YEAR(review_date) AS year,
+       MONTHNAME(review_date) AS month_name
+FROM reviews
+GROUP BY review_id
+ORDER BY review_count DESC;
+
+-- Find the restaurant(s) located in the city that has the maximum number of restaurants, return city name and restaurant name, ordered by restaurant name ascending.
+
+SELECT city_name,
+       name AS restaurant_name
+FROM restaurants r
+JOIN cities c 
+ON r.city_id = c.city_id
+WHERE r.city_id = (
+        SELECT city_id
+        FROM restaurants
+        GROUP BY city_id
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+      )
+ORDER BY restaurant_name ASC;
+
+
+-- Find all restaurants in Yerevan with an average rating greater than 4.7, return the restaurant name and average rating rounded to two decimal places.
+SELECT name AS restaurant_name,
+            round(AVG(rating),2) AS avgerage_rating
+FROM restaurants AS r
+JOIN cities AS c
+ON r.city_id=c.city_id
+JOIN reviews AS rv
+ON r.restaurant_id=rv.restaurant_id
+WHERE city_name='Yerevan'
+GROUP BY restaurant_name
+HAVING AVG(rating)>4.7;
+
+-- Return user name, age, and age group as numeric ranges: <16, 16-25, 26-40, 41-60, 60+, ordered by age ascending.
+SELECT full_name AS user_name,age,
+   CASE 
+	 WHEN age < 16 THEN '<16'
+     WHEN age BETWEEN 16 AND 25 THEN '16-25'
+     WHEN age BETWEEN 26 AND 40 THEN '26-40'
+     WHEN age BETWEEN 41 AND 60 THEN '41-60'
+     WHEN age > 60 THEN '60+'
+END AS age_range
+FROM users
+ORDER BY age ASC;
