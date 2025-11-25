@@ -17,7 +17,6 @@ This repository contains all my home tasks from the Data Analysis course, includ
 - Window functions  
 - Query optimization  
 - Dashboard queries for Tableau/Looker  
-- Homework examples included in the `/SQL` folder
 
 ### 2️⃣ Excel  
 - Pivots & slicers  
@@ -26,13 +25,13 @@ This repository contains all my home tasks from the Data Analysis course, includ
 - Sales performance tracking  
 
 ### 3️⃣ Tableau  
-- Interactive dashboards  
 - Parameters, filters, trend lines  
 - Scorecards & KPI cards   
 - Sales insights  
 
 ### 4️⃣ Looker Studio  
-- Marketing dashboard  
+- Interactive dashboards  
+- Revenue Overview dashboard  
 - Time-series visualizations  
 - Data blending & calculated metrics  
 
@@ -42,12 +41,10 @@ This repository contains all my home tasks from the Data Analysis course, includ
 
 - Keep all course tasks organized  
 - Track my progress in data analytics  
-- Build a portfolio for job applications  
 - Practice Git, GitHub, and version control  
-- Share my dashboards and SQL tasks with potential employers  
 
 ---
 
 ## ✨ Author
 **Anya Makaryan**  
-Business Analyst and aspiring Data Analyst  
+Business Analyst 
