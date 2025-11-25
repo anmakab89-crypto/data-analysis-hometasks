@@ -1,0 +1,51 @@
+CREATE TABLE hotels (
+    hotel_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    city_id INT NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    stars INT NOT NULL CHECK (stars BETWEEN 1 AND 5),
+    amenities VARCHAR(255) NOT NULL,
+    FOREIGN KEY (city_id) REFERENCES cities(city_id)
+);hotels
+
+INSERT INTO hotels (name,city_id,address,stars,amenities)
+VALUES('Cascade View Hotel',1, '10 Tamanyan St',4,'Free WiFi,Gym,Breakfast');
+
+INSERT INTO hotels(name,city_id,address,stars,amenities)
+VALUES('Central Park Lodge',3,  '5 W 59th St',4,'Free WiFi,Parking,Airport Shuttle,Breakfast');
+
+INSERT INTO hotels (name,city_id,address,stars,amenities)
+VALUES('Shinjuku Garden Hotel',4,'1-2-3 Shinjuku',5,'Free WiFi,Restaurant,Gym,Spa');
+
+INSERT INTO hotels (name,city_id,address,stars,amenities)
+VALUES('Montmartre Boutique',5,'12 Rue Lepic',3, 'Free WiFi,Breakfast,Pet Friendly');
+
+INSERT INTO hotels (name,city_id,address,stars,amenities)
+VALUES('Riverfront Inn',2, '22 Thames Rd',5,'Free WiFi,Pool,Spa,Bar,Parking');
+
+SELECT* FROM reviews;
+ALTER TABLE reviews
+ADD column hotel_review varchar (255);
+
+ALTER TABLE reviews
+ADD column hotel_id INT NOT NULL;
+
+ALTER TABLE reviews
+MODIFY COLUMN hotel_review varchar(255) AFTER comment;
+
+ALTER TABLE reviews
+DROP hotel_id;
+ALTER TABLE reviews
+ADD column hotel_id INT NOT NULL;
+ALTER TABLE reviews
+MODIFY COLUMN hotel_id INT NOT NULL AFTER restaurant_id;
+
+INSERT INTO reviews (user_id, restaurant_id,hotel_id, rating, comment,hotel_review,review_date)
+VALUES (1, 1, 1, 5, 'Best khorovats in Yerevan','Excellent', '2024-11-15');
+
+DELETE FROM reviews
+WHERE review_id=13;
+
+UPDATE reviews
+SET hotel_id=1,hotel_review='Excellent'
+WHERE review_id=1;
